@@ -11,3 +11,13 @@ cat $input_file.nopkname.bed | awk -F '\t' -v OFS='\t' '{print $1, $2, $3, $1"_"
 sort $input_file.withpkname.bed | uniq > $input_file.withpkname.uniq.bed
 ./bigWigAverageOverBed $input_file.sorted.bw $input_file.withpkname.uniq.bed $input_file.bigbedfile1.tab
 sort -k1,1 $input_file.bigbedfile1.tab > $input_file.bigbedfile1.pkidsort.tab
+
+
+
+
+cat CFUE/ENCFF134CQC/ENCFF134CQC.clip.bed CFUE/ENCFF599ZDJ/ENCFF599ZDJ.clip.bed erythroblast/ENCFF181AMY/ENCFF181AMY.clip.bed erythroblast/ENCFF616EWK/ENCFF616EWK.clip.bed | sort -k1,1 -k2,2n > all_peaks.merged.bed
+cat all_peaks.merged.bed | awk -F '\t' -v OFS='\t' '{print $1,$2,$3,$1"_"$2"_"$3}' > master_peak_list.withpkname.bed
+sort master_peak_list.withpkname.bed | uniq > master_peak_list.uniq.bed
+./bigWigAverageOverBed ../CFUE/ENCFF134CQC/ENCFF134CQC.sorted.bw ../master_peak_list.withpkname.bed ENCFF134CQC.final.tab
+sort -k1,1 ENCFF134CQC.final.tab > ENCFF134CQC.pkidsort.tab
+cut -f1,6 ENCFF134CQC.pkidsort.tab > ENCFF134CQC.de.tsv
