@@ -1,0 +1,49 @@
+library(dplyr)
+library(DESeq2)
+library(pheatmap)
+library("RColorBrewer")
+library(apeglm)
+
+cfue1 <- read.table("cfue/ENCFF134CQC.de.tsv")
+cfue2 <- read.table("cfue/ENCFF599ZDJ.de.tsv")
+ery1 <- read.table("atac/ENCFF181AMY.de.tsv")
+ery2 <- read.table("atac/ENCFF616EWK.de.tsv")
+colnames(ery1) <- c("Peak_ID","ENCFF181AMY")
+colnames(ery2) <- c("Peak_ID","ENCFF616EWK")
+colnames(cfue1) <- c("Peak_ID","ENCFF134CQC")
+colnames(cfue2) <- c("Peak_ID","ENCFF599ZDJ")
+
+ery <- left_join(ery1,ery2, by = "Peak_ID")
+cfue <- left_join(cfue1,cfue2, by = "Peak_ID")
+test1 <- left_join(ery,cfue, by = "Peak_ID")
+
+test1$ENCFF181AMY <- as.integer(test1$ENCFF181AMY)
+test1$ENCFF616EWK <- as.integer(test1$ENCFF616EWK)
+test1$ENCFF134CQC <- as.integer(test1$ENCFF134CQC)
+test1$ENCFF599ZDJ <- as.integer(test1$ENCFF599ZDJ)
+rownames(test1) <- test1$Peak_ID
+test1 <- test1[,-1]
+
+coldata <- read.table("atac/metadata.txt", sep = '\t', header = TRUE)
+
+DESeq.ds <- DESeqDataSetFromMatrix(countData = test1, colData = coldata,design = ~ Type)
+DESeq.ds <- DESeq.ds[rowSums(counts(DESeq.ds)) >= 10,]
+DESeq.ds <- DESeq(DESeq.ds)
+res <- results(DESeq.ds)
+
+plotMA(res, ylim=c(-4,4))
+resultsNames(DESeq.ds)
+resLFC <- lfcShrink(DESeq.ds, coef="Type_erythroblast_vs_CFUE", type="apeglm")
+plotMA(resLFC, alpha = 0.05, ylim=c(-3,3))
+
+vsd <- vst(DESeq.ds, blind=FALSE)
+plotPCA(vsd, intgroup=c("Type"))
+
+sampleDists <- dist(t(assay(vsd)))
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(vsd$Sample,vsd$Type, sep="-")
+colnames(sampleDistMatrix) <- paste(vsd$Sample,vsd$Type, sep="-")
+pheatmap(sampleDistMatrix)
+
+
+
