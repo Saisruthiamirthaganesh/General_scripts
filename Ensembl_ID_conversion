@@ -1,0 +1,6 @@
+library('biomaRt')
+mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+genes <- df$genes
+df<-df[,-4]
+G_list <- getBM(filters= "ensembl_gene_id", attributes= c("ensembl_gene_id","hgnc_symbol"),values=genes,mart= mart)
+merge(df,G_list,by.x="gene",by.y="ensembl_gene_id")
