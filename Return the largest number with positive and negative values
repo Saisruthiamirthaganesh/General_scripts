@@ -1,0 +1,10 @@
+from typing import List
+def largest_k(nums: List[int]) -> int:
+    result = 0
+    for i in nums:
+        if i > 0 and -i in nums:
+            result = max(result, i)
+    return result
+#print(result)
+list1 = [2,3,0]
+print(largest_k(list1))
