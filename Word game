@@ -1,0 +1,13 @@
+S = 'cdeo'
+A = [3,2,0,1]
+def solution(S, A):
+    # Implement your solution here
+    player1 = A[0]
+    message = S[0]
+    while player1 !=0:
+#        print(message)
+        message += S[player1]
+        player1 = A[player1]
+#        player1=player2
+    return(message)
+print(solution('cdeo',[3,2,0,1]))
